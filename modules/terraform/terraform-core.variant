@@ -226,6 +226,12 @@ job "terraform write override" {
     description = "Component"
   }
 
+  option "stack" {
+    type        = string
+    description = "Stack"
+    short       = "s"
+  }
+
   option "role" {
     type        = string
     description = "Role to assume"
@@ -236,6 +242,19 @@ job "terraform write override" {
       name = "terraform provider override"
       args = {
         role = opt.role
+      }
+    }
+  }
+
+  config "config-component-dir" {
+    source job {
+      name = "stack config"
+      args = {
+        component-type = "terraform"
+        config-type    = "component-dir"
+        component      = param.component
+        stack          = opt.stack
+        format         = "json"
       }
     }
   }
@@ -253,7 +272,7 @@ job "terraform write override" {
       format    = event.exec.args[0]
     }
 
-    file = "${opt.terraform-dir}/${param.component}/override.tf.json"
+    file = "${conf.config-component-dir.component-dir}/override.tf.json"
   }
 }
 
