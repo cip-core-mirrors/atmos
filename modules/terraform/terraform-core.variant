@@ -98,9 +98,28 @@ job "terraform shell" {
     description = "Component"
   }
 
+  option "stack" {
+    type        = string
+    description = "Stack"
+    short       = "s"
+  }
+
   option "commands" {
     description = "List of commands to execute"
     type        = list(string)
+  }
+
+  config "config-component-dir" {
+    source job {
+      name = "stack config"
+      args = {
+        component-type = "terraform"
+        config-type    = "component-dir"
+        component      = param.component
+        stack          = opt.stack
+        format         = "json"
+      }
+    }
   }
 
   run "shell" {
@@ -111,7 +130,7 @@ job "terraform shell" {
       join(" ", opt.commands)
     ]
 
-    dir = "${opt.terraform-dir}/${param.component}"
+    dir = "${conf.config-component-dir.component-dir}"
   }
 }
 
