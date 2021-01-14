@@ -58,6 +58,19 @@ job "terraform subcommand" {
     }
   }
 
+  config "config-component-dir" {
+    source job {
+      name = "stack config"
+      args = {
+        component-type = "terraform"
+        config-type    = "component-dir"
+        component      = param.component
+        stack          = opt.stack
+        format         = "json"
+      }
+    }
+  }
+
   variable "exec-cmd" {
     value = opt.dry-run ? "echo" : conf.terraform-command.command
     type  = string
@@ -70,7 +83,7 @@ job "terraform subcommand" {
   exec {
     command     = var.exec-cmd
     args        = var.exec-args
-    dir         = "${opt.terraform-dir}/${param.component}"
+    dir         = "${conf.config-component-dir.component-dir}"
     env         = opt.env
     interactive = true  # currently `variant` does not support interpolation in the `interactive` attribute, so `opt.interactive` does not work
   }
@@ -130,6 +143,19 @@ job "terraform write varfile" {
     }
   }
 
+  config "config-component-dir" {
+    source job {
+      name = "stack config"
+      args = {
+        component-type = "terraform"
+        config-type    = "component-dir"
+        component      = param.component
+        stack          = opt.stack
+        format         = "json"
+      }
+    }
+  }
+
   exec {
     command = "echo"
 
@@ -144,7 +170,7 @@ job "terraform write varfile" {
       format    = event.exec.args[0]
     }
 
-    file = "${opt.terraform-dir}/${param.component}/${opt.stack}-${param.component}.terraform.tfvars.json"
+    file = "${conf.config-component-dir.component-dir}/${opt.stack}-${param.component}.terraform.tfvars.json"
   }
 }
 

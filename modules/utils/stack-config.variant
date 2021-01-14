@@ -139,13 +139,22 @@ job "stack config" {
     }
   }
 
+  variable "component-dir" {
+    value = try(conf.all.components[opt.component-type][param.component]["component_dir"], null)
+  }
+
+  variable "dir" {
+    value = var.component-dir != null ? var.component-dir : (opt.component-type == "terraform" ? "${opt.terraform-dir}/${param.component}" : "${opt.helmfile-dir}/${param.component}")
+  }
+
   variable "output" {
     value = {
-      vars         = conf.vars,
-      command      = { command = var.command },
-      backend      = { "${var.backend-type}" = conf.backend },
-      backend-type = var.backend-type,
-      all          = conf.all
+      vars          = conf.vars,
+      command       = { command = var.command },
+      backend       = { "${var.backend-type}" = conf.backend },
+      backend-type  = var.backend-type,
+      component-dir = var.dir,
+      all           = conf.all
     }
   }
 
